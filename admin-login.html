@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+
+<style>
+/* BACKGROUND */
+body {
+    font-family: "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, #F0C5DD, #ED8296);
+    margin: 0;
+    padding: 0;
+}
+
+/* LOGIN BOX */
+.container {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 35px;
+    width: 320px;
+    margin: 100px auto;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    text-align: center;
+    color: white;
+}
+
+.container h2 {
+    margin-bottom: 20px;
+}
+
+/* INPUTS */
+input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+/* PANEL */
+#panel {
+    display: none;
+    padding: 20px;
+}
+
+.panel-title {
+    text-align: center;
+    color: white;
+    margin-bottom: 20px;
+}
+
+/* CARD */
+.card {
+    background: white;
+    padding: 20px;
+    margin: 15px auto;
+    border-radius: 12px;
+    max-width: 700px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* STATUS BADGES */
+.status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.pending {
+    background: orange;
+    color: white;
+}
+
+.approved {
+    background: green;
+    color: white;
+}
+
+.rejected {
+    background: red;
+    color: white;
+}
+
+/* BUTTON GROUP */
+.actions button {
+    padding: 6px 10px;
+    margin: 3px;
+    border-radius: 6px;
+}
+
+.approve-btn {
+    background: #28a745;
+}
+
+.reject-btn {
+    background: #dc3545;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="container" id="loginBox">
+    <h2>🔐 Admin Login</h2>
+
+    <input type="text" id="username" placeholder="Username"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+
+    <button onclick="login()">Login</button>
+
+    <!-- ✅ Back button -->
+    <button onclick="goHome()" style="background:#6c757d;margin-top:10px;">
+        ⬅ Go Back Home
+    </button>
+</div>
+</div>
+
+<!-- PANEL -->
+<div id="panel">
+    <h2 class="panel-title">📋 Manage Complaints</h2>
+    <div id="list"></div>
+</div>
+
+<script>
+
+// LOGIN
+function login(){
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    fetch("http://localhost:5000/admin-login", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ username, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success){
+            alert("Login successful ✅");
+
+            document.getElementById("loginBox").style.display = "none";
+            document.getElementById("panel").style.display = "block";
+
+            loadComplaints();
+        } else {
+            alert("Invalid login ❌");
+        }
+    });
+}
+
+// LOAD DATA
+function loadComplaints(){
+    fetch("http://localhost:5000/complaints")
+    .then(res => res.json())
+    .then(data => {
+
+        let container = document.getElementById("list");
+        container.innerHTML = "";
+
+        if(data.length === 0){
+            container.innerHTML = "<h3 style='color:white;text-align:center;'>No complaints</h3>";
+            return;
+        }
+
+        data.forEach(c => {
+
+            let title = c.title || c.name || "No Title";
+            let status = (c.status || "Pending").toLowerCase();
+
+            container.innerHTML += `
+            <div class="card">
+                <div>
+                    <h4>${title}</h4>
+                    <p>${c.issue}</p>
+                    <span class="status ${status}">${status.toUpperCase()}</span>
+                </div>
+
+                <div class="actions">
+                    <button class="approve-btn" onclick="updateStatus('${c._id}','Approved')">Approve</button>
+                    <button class="reject-btn" onclick="updateStatus('${c._id}','Rejected')">Reject</button>
+                </div>
+            </div>
+            `;
+        });
+    });
+}
+
+// UPDATE STATUS
+function updateStatus(id, status){
+    fetch("http://localhost:5000/complaints/" + id, {
+        method:"PUT",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ status })
+    })
+    .then(()=>loadComplaints());
+}
+function goHome(){
+    window.location.href = "index.html"; 
+}
+
+</script>
+
+</body>
+</html>

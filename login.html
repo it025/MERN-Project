@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Login</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+}
+
+/* Card */
+.container {
+    background: #fff;
+    padding: 35px;
+    width: 350px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {opacity:0; transform: translateY(20px);}
+    to {opacity:1; transform: translateY(0);}
+}
+
+.container h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Inputs */
+.input-box {
+    margin: 15px 0;
+}
+
+.input-box input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-box input:focus {
+    border-color: #ff758c;
+    box-shadow: 0 0 8px #ff758c;
+}
+
+/* Button */
+button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #ff758c, #ff7eb3);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+/* Footer */
+.footer {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.footer a {
+    text-decoration: none;
+    color: #ff758c;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+    <h2>User Login</h2>
+
+    <div class="input-box">
+        <input id="email" placeholder="Enter Email">
+    </div>
+
+    <div class="input-box">
+        <input id="password" type="password" placeholder="Enter Password">
+    </div>
+
+    <button onclick="login()">Login</button>
+
+    <div class="footer">
+        Don’t have an account? <a href="register.html">Register</a>
+    </div>
+</div>
+
+<script>
+function login(){
+fetch("http://localhost:5000/users/login", {
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body: JSON.stringify({
+email:document.getElementById("email").value,
+password:document.getElementById("password").value
+})
+})
+.then(res=>res.json())
+.then(data=>{
+alert(data.message);
+})
+.catch(err=>{
+alert("Server error");
+});
+}
+</script>
+
+</body>
+</html>
